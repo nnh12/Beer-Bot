@@ -25,20 +25,34 @@ void main(void){
   P2DIR |= BIT1; // Set P2.1 as output
   P2SEL |= BIT5; // P2.5 is TA1.2 PWM output
 
-  P1DIR |= BIT5; // We need P2.5 to be output
+  P1DIR |= BIT2; // We need P2.5 to be output
   //P1DIR |= BIT1; // Set P2.1 as output
-  P1SEL |= BIT5 ; // P2.5 is TA1.2 PWM output
+  P1SEL |= BIT2 ; // P2.5 is TA1.2 PWM output
 
+  //TA1CCR0 = periods[which_period];
+  //TA1CCR2 = periods[which_period]>>1; // divde by 2
+  //sets the interrupts for the button
+  P1IE |= BIT3;
+  P1IES |= BIT3;
+  P1IFG &= ~BIT3;
 
+  //P1DIR |= BIT6;
+  P1DIR &= ~BIT3; //sets the button as an input
+  //P1OUT |= BIT6;
 
 
 
   TA1CCR0 = 7000;
-  TA1CCR2 = 5000;
-
+  TA1CCR2 = 0;
   TA1CCTL2 = OUTMOD_7;
-  TA1CCTL1 = OUTMOD_7;
   TA1CTL = TASSEL_2 + MC_1; // SMCLK, upmode
+
+  TA0CCR0 = 7000; //Set the period in the Timer A0 Capture/Compare 0 register to 1000 us.
+  TA0CCTL1 = OUTMOD_7;
+  TA0CCR1 = 5000; //The period in microseconds that the power is ON. It's half the time, which translates to a 50% duty cycle.
+  TA0CTL = TASSEL_2 + MC_1; //TASSEL_2 selects SMCLK as the clock source, and MC_1 tells it to count up to the value in TA0CCR0.
+
+
 
   WDTCTL = WDT_ADLY_250;  // Set Watchdog Timer to 1000 ms with VLO
   IE1 |= WDTIE;
