@@ -19,8 +19,14 @@ void main(void){
   P2DIR |= BIT1; // Set P2.1 as output
   P2SEL |= BIT5 + BIT4; // P2.5 is TA1.2 PWM output
 
-  //TA1CCR0 = periods[which_period];
-  //TA1CCR2 = periods[which_period]>>1; // divde by 2
+  P1DIR |= BIT5;
+  P1SEL |= BIT5;
+
+  TA0CCR0 = 4000;
+  TA0CCR2 = 3000;
+  TA0CCTL2 = OUTMOD_7;
+  TA0CTL = TASSEL_2 + MC_1; // SMCLK, upmode
+
 
   TA1CCR0 = 4000;
   TA1CCR2 = 3000;
@@ -31,12 +37,4 @@ void main(void){
   IE1 |= WDTIE;
   __bis_SR_register(CPUOFF + GIE);
 }
-/*
-#pragma vector=WDT_VECTOR
-__interrupt void watchdog_timer(void)
-{
-  which_period = (which_period + 1) % 4;
-  TA1CCR2 = periods[which_period]>>1;
-  TA1CCR0 = periods[which_period];
-}
-*/
+
