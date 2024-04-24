@@ -55,7 +55,7 @@ void main(void){
   P1OUT = 0x00; //start led off
 
   TA1CCR0 = 7000;
-  TA1CCR2 = 0;
+  TA1CCR2 = 500;
   TA1CCTL2 = OUTMOD_7;
   TA1CTL = TASSEL_2 + MC_1; // SMCLK, upmode
 
@@ -70,20 +70,20 @@ void main(void){
 
   while(1){
 
-      if (P1IN & BIT6){ //checks if button is not pressed
+      if (!(P1IN & BIT6)){ //checks if button is not pressed
           count++;
       }
 
-      if (count % 2 == 0) {
+      if (count % 2 != 0) {
           P1OUT &= ~BIT0;
           TA1CCR2 = 5000;
           TA0CCR1 = 0;
       }
 
-      if (count % 2 != 0){
+      else if (count % 2 == 0){
           P1OUT = BIT0; //red led on
-          TA0CCR1 = 5000;
           TA1CCR2 = 0;
+          TA0CCR1 = 5000;
       }
 
   }
