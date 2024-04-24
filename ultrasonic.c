@@ -65,7 +65,7 @@ void main(void)
             dst_flt = floor(tmp_flt * 1000);
 
             int new_num =  round(dst_flt);
-            if (new_num > 10) {
+            if (dst_int > 10) {
                 P1OUT |= BIT0;
             }
 
@@ -82,7 +82,7 @@ void main(void)
             dst_flt = floor(tmp_flt * 100);
 
             int new_num =  round(dst_flt);
-            if (new_num > 10) {
+            if (dst_int > 10) {
                 P1OUT |= BIT0;
             }
 
@@ -99,8 +99,8 @@ void main(void)
             dst_flt = floor(tmp_flt * 100);
 
             int new_num =  round(dst_flt);
-            
-            if (new_num > 10) {
+
+            if (dst_int > 10) {
                 P1OUT |= BIT0;
             }
 
