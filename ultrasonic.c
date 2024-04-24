@@ -34,7 +34,9 @@ void main(void)
     WDTCTL = WDTPW | WDTHOLD;   // stop watchdog timer
     BCSCTL1= CALBC1_1MHZ;
     DCOCTL = CALDCO_1MHZ;
-    P1DIR = BIT6;
+
+    P1DIR |= BIT6 | BIT0;
+
     P2SEL = BIT1;
     P1SEL = BIT1|BIT2|BIT6;
     P1SEL2 = BIT1|BIT2;
@@ -58,21 +60,54 @@ void main(void)
         //check article:
         //https://software-dl.ti.com/ccs/esd/documents/sdto_cgt_handling_changes_in_ltoa.html
         ltoa(dst_int, dst_char, 10);
+
         if (tmp_flt < 0.01) {
-        dst_flt = floor(tmp_flt * 1000);
+            dst_flt = floor(tmp_flt * 1000);
+
+            int new_num =  round(dst_flt);
+            if (new_num > 10) {
+                P1OUT |= BIT0;
+            }
+
+            else {
+                P1OUT &= ~BIT0;
+            }
         //if you get an error with ltoa, try: 'ltoa(dst_flt,dst_flt_char,10)'
         //check article:
         //https://software-dl.ti.com/ccs/esd/documents/sdto_cgt_handling_changes_in_ltoa.html
-        ltoa(dst_flt,dst_flt_char, 10);
-        ser_output(printdist); ser_output(dst_char); ser_output(dot); ser_output(zerro); ser_output(zerro); ser_output(dst_flt_char); ser_output(centimeter);
+            ltoa(dst_flt,dst_flt_char, 10);
+            ser_output(printdist); ser_output(dst_char); ser_output(dot); ser_output(zerro); ser_output(zerro); ser_output(dst_flt_char); ser_output(centimeter);
         }
         else if (tmp_flt < 0.1) {
             dst_flt = floor(tmp_flt * 100);
+
+            int new_num =  round(dst_flt);
+            if (new_num > 10) {
+                P1OUT |= BIT0;
+            }
+
+            else {
+                P1OUT &= ~BIT0;
+            }
+
             ltoa(dst_flt,dst_flt_char, 10);
             ser_output(printdist); ser_output(dst_char); ser_output(dot); ser_output(zerro); ser_output(dst_flt_char); ser_output(centimeter);
         }
         else {
+
+
             dst_flt = floor(tmp_flt * 100);
+
+            int new_num =  round(dst_flt);
+            
+            if (new_num > 10) {
+                P1OUT |= BIT0;
+            }
+
+            else {
+                P1OUT &= ~BIT0;
+            }
+
             ltoa(dst_flt,dst_flt_char, 10);
             ser_output(printdist); ser_output(dst_char); ser_output(dot); ser_output(dst_flt_char); ser_output(centimeter);
         }
