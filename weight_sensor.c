@@ -18,10 +18,16 @@ const int LOADCELL_SCK_PIN = 3;
 
 HX711 scale;
 
+int count = 1;
+int sum = 0;
+int average = 0;
+int num = 0;
+
 void setup() {
   Serial.begin(57600);
   Serial.println("HX711 Demo");
   Serial.println("Initializing the scale");
+  pinMode(13, OUTPUT);
 
   scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
 
@@ -62,10 +68,29 @@ void setup() {
 }
 
 void loop() {
+ 
   Serial.print("one reading:\t");
+
   Serial.print(scale.get_units(), 1);
+
+  if (scale.get_units() < -30) {
+      digitalWrite(6, HIGH);
+  }
+
+  else {
+      digitalWrite(6, LOW); 
+  }
+
+  num = scale.get_units();
+  sum += scale.get_units();
+
+  average = (sum/count);
+  count++; 
+
   Serial.print("\t| average:\t");
-  Serial.println(scale.get_units(10), 5);
+  Serial.println(average, 5);
+
+
 
   delay(1000);
 }
