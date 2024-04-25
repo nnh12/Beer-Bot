@@ -1,115 +1,96 @@
-/*
-   ELEC327 Lab 5 Buzzer Example Code.
-   Drive a piezo buzzer connected between P2.1 and P2.5.
-   Plays a major C chord.
-*/
-
-//#include "msp430g2553.h"
-/*
-// Notes for a major C chord
-int periods[] = {1000000/261.63,
-   1000000/329.63,
-   1000000/392.00,
-   1000000/523.5};
-int which_period = 0;
-*/
-
-#include <msp430.h>
-
-
 /**
- * main.c
- */
+ * Complete project details at https://RandomNerdTutorials.com/arduino-load-cell-hx711/
+ *
+ * HX711 library for Arduino - example file
+ * https://github.com/bogde/HX711
+ *
+ * MIT License
+ * (c) 2018 Bogdan Necula
+ *
+**/
 
-void main(void){
-  WDTCTL = WDTPW + WDTHOLD; // Stop WDT
-  BCSCTL3 |= LFXT1S_2;      // ACLK = VLO
+#include <Arduino.h>
+#include "HX711.h"
 
-  BCSCTL1 = CALBC1_1MHZ;    // Set the DCO to 1 MHz
-  DCOCTL = CALDCO_1MHZ;     // And load calibration data
+// HX711 circuit wiring
+const int LOADCELL_DOUT_PIN = 2;
+const int LOADCELL_SCK_PIN = 3;
 
-  P2DIR |= BIT5; // We need P2.5 to be output
-  P2DIR |= BIT1; // Set P2.1 as output
-  P2SEL |= BIT5; // P2.5 is TA1.2 PWM output
+HX711 scale;
 
-  P1DIR |= BIT2; // We need P2.5 to be output
-  //P1DIR |= BIT1; // Set P2.1 as output
-  P1SEL |= BIT2 ; // P2.5 is TA1.2 PWM output
+int count = 1;
+int sum = 0;
+int average = 0;
+int num = 0;
 
-  //TA1CCR0 = periods[which_period];
-  //TA1CCR2 = periods[which_period]>>1; // divde by 2
-  //sets the interrupts for the button
-  P1IE |= BIT3;
-  P1IES |= BIT3;
-  P1IFG &= ~BIT3;
+void setup() {
+  Serial.begin(57600);
+  Serial.println("HX711 Demo");
+  Serial.println("Initializing the scale");
+  pinMode(13, OUTPUT);
 
-  //P1DIR |= BIT6;
-  P1DIR &= ~BIT3; //sets the button as an input
-  //P1OUT |= BIT6;
+  scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
 
-  P1DIR = BIT0; //Green LED
+  Serial.println("Before setting up the scale:");
+  Serial.print("read: \t\t");
+  Serial.println(scale.read());      // print a raw reading from the ADC
 
-  P1DIR |= ~BIT6; //input from the other board
+  Serial.print("read average: \t\t");
+  Serial.println(scale.read_average(20));   // print the average of 20 readings from the ADC
 
+  Serial.print("get value: \t\t");
+  Serial.println(scale.get_value(5));   // print the average of 5 readings from the ADC minus the tare weight (not set yet)
 
-  P1OUT = 0x00; //start led off
+  Serial.print("get units: \t\t");
+  Serial.println(scale.get_units(5), 1);  // print the average of 5 readings from the ADC minus tare weight (not set) divided
+            // by the SCALE parameter (not set yet)
+            
+  scale.set_scale(-459.542);
+  //scale.set_scale(-471.497);                      // this value is obtained by calibrating the scale with known weights; see the README for details
+  scale.tare();               // reset the scale to 0
 
-  TA1CCR0 = 7000;
-  TA1CCR2 = 500;
-  TA1CCTL2 = OUTMOD_7;
-  TA1CTL = TASSEL_2 + MC_1; // SMCLK, upmode
+  Serial.println("After setting up the scale:");
 
-  TA0CCR0 = 7000; //Set the period in the Timer A0 Capture/Compare 0 register to 1000 us.
-  TA0CCTL1 = OUTMOD_7;
-  TA0CCR1 = 0; //The period in microseconds that the power is ON. It's half the time, which translates to a 50% duty cycle.
-  TA0CTL = TASSEL_2 + MC_1; //TASSEL_2 selects SMCLK as the clock source, and MC_1 tells it to count up to the value in TA0CCR0.
+  Serial.print("read: \t\t");
+  Serial.println(scale.read());                 // print a raw reading from the ADC
 
-  WDTCTL = WDT_ADLY_250;  // Set Watchdog Timer to 1000 ms with VLO
-  IE1 |= WDTIE;
-  int count = 0;
+  Serial.print("read average: \t\t");
+  Serial.println(scale.read_average(20));       // print the average of 20 readings from the ADC
 
-  while(1){
+  Serial.print("get value: \t\t");
+  Serial.println(scale.get_value(5));   // print the average of 5 readings from the ADC minus the tare weight, set with tare()
 
-      if (!(P1IN & BIT6)){ //checks if button is not pressed
-          count++;
-      }
+  Serial.print("get units: \t\t");
+  Serial.println(scale.get_units(5), 1);        // print the average of 5 readings from the ADC minus tare weight, divided
+            // by the SCALE parameter set with set_scale
 
-      if (count % 2 != 0) {
-          P1OUT &= ~BIT0;
-          TA1CCR2 = 5000;
-          TA0CCR1 = 0;
-      }
+  Serial.println("Readings:");
+}
 
-      else if (count % 2 == 0){
-          P1OUT = BIT0; //red led on
-          TA1CCR2 = 0;
-          TA0CCR1 = 5000;
-      }
+void loop() {
+ 
+  Serial.print("one reading:\t");
 
+  Serial.print(scale.get_units(), 1);
+
+  if (scale.get_units() < -30) {
+      digitalWrite(6, HIGH);
   }
 
+  else {
+      digitalWrite(6, LOW); 
+  }
 
-  __bis_SR_register(CPUOFF + GIE);
+  num = scale.get_units();
+  sum += scale.get_units();
+
+  average = (sum/count);
+  count++; 
+
+  Serial.print("\t| average:\t");
+  Serial.println(average, 5);
+
+
+
+  delay(1000);
 }
-/*
-#pragma vector=WDT_VECTOR
-__interrupt void watchdog_timer(void)
-{
-  which_period = (which_period + 1) % 4;
-  TA1CCR2 = periods[which_period]>>1;
-  TA1CCR0 = periods[which_period];
-}
-*/
-/*
-#pragma vector = PORT1_VECTOR
-__interrupt void PORT1_ISR(void)
-{
-    if (P1IN & BIT3) //when the button is released
-    {
-
-    }
-
-}
-
-    }
-*/
