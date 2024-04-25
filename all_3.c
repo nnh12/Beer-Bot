@@ -54,8 +54,8 @@ void main(void){
   P2IFG |= BIT4;
 
   P1OUT |= BIT0;
-  
-  
+
+
   __bis_SR_register(LPM1_bits + GIE);     // Enter LPM3
 }
 
@@ -88,16 +88,19 @@ __interrupt void PORT1_ISR(void)
 #pragma vector = PORT2_VECTOR
 __interrupt void PORT2_ISR(void)
 {
-    if (P2IN & BIT4) {
+    state = counter % 2;
+    if (!(P2IN & BIT4) & (state == 1)) {
+        counter = counter + 1;
+        TA0CCR1 = 5000;
+        TA1CCR2 = 0;
+        }
+    else if (P2IN & BIT4) {
         counter = counter + 1;
         TA1CCR2 = 5000;
         P1OUT ^= BIT0;
-        if (!(P2IN & BIT4)) {
-            TA0CCR1 = 0;
-            TA1CCR2 = 5000;
-        }
-
     }
+
+
     P2IES ^= BIT4;
     P2IFG &= ~BIT4;
 }
