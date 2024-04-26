@@ -52,27 +52,21 @@ __interrupt void Timer_A(void){
 // Enable Serial communication via UART for testing purposes
 void initialize_UART() {
     UCA0CTL1 |= UCSWRST + UCSSEL_2; // Set Software Reset ENable and select SMCLK as clock source of UART
-
     UCA0BR0 = 52;                   // Set the baud rate control register UCA0BR0 for lower byte to 52.
-
     UCA0BR1 = 0;                    // Set the baud rate control register for upper byte to 0.
-
+    
     UCA0MCTL = UCBRS_0;            // Set the modulation control register.  Configures no additiaonl modulation
-
     UCA0CTL1 &= ~UCSWRST;           // Clear Software Reset Disable, enabling UART module to start
-
-    // Line 6: Configure Timer_A control register. Set TASSEL_2 to select SMCLK as the clock source,
-    // and MC_1 to start the timer in up mode.
-    TA0CTL = TASSEL_2 | MC_1;
+    TA0CTL = TASSEL_2 | MC_1;       // Configure Timer_A control register. Set TASSEL_2 to select SMCLK as the clock source,
 }
 
 
 // Inititailize the 
 void init_ultrasound() {
-    P1DIR |= BIT6 | BIT0;
-    P2SEL = BIT1;
-    P1SEL = BIT1|BIT2|BIT6;
-    P1SEL2 = BIT1|BIT2;
+    P1DIR |= BIT6 | BIT0;           // Inititalize Pin 1.6 and P1.0
+    P2SEL = BIT1;                   // Initialize PIN 2.1
+    P1SEL = BIT1|BIT2|BIT6;         // Initialize Pint Select 1.1, 1.2, and 1.6
+    P1SEL2 = BIT1|BIT2;             // Initialize 2.1 and 2.2
 }
 
 // Inititlzie the duty cycle of the timer
@@ -81,9 +75,10 @@ void init_timer() {
     TA0CCR1 = 0x000A;           // Set the end of the duty cycle
     TA0CCTL1 = OUTMOD_7;        // Declare it in output mode 7
 
-    TA1CTL = TASSEL_2|MC_2 ;
-    TA1CCTL1 = CAP | CCIE | CCIS_0 | CM_3 | SCS ;
+    TA1CTL = TASSEL_2|MC_2 ;    // Configure Timer_A1 control register
+    TA1CCTL1 = CAP | CCIE | CCIS_0 | CM_3 | SCS ;  // Set capture/compare control register for channel 1
 }
+
 void main(void)
 {
     WDTCTL = WDTPW | WDTHOLD;   // stop watchdog timer
