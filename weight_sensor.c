@@ -1,7 +1,6 @@
 #include <Energia.h>
 #include "HX711.h"
 
-
 const int DATA_PIN = 2;                 // Define the data pint
 const int CLOCK_PIN = 3;                // Define the clock pin
 
@@ -22,7 +21,6 @@ void setup() {
   Serial.begin(57600);                    // Set the Baud rate and the Serial Communication
   Serial.println("Initializing the scale");
   pinMode(13, OUTPUT);
-
   scale.begin(DATA_PIN, CLOCK_PIN);        // Inititalize the correct data and clock pin
 
   Serial.println("Calibrate the scael");
@@ -36,9 +34,8 @@ void setup() {
   Serial.println(scale.get_value(5));       // Get the average of 5 values
 
   Serial.print("Average: \t\t");
-  Serial.println(scale.get_units(5), 1);    // print the average of 5 readings from the ADC minus tare weight (not set) divided
-                                            // by the SCALE parameter (not set yet)
-            
+  Serial.println(scale.get_units(5), 1);    // print the average of 5 readings from the ADC minus tare weight (not set) divide
+    
   scale.set_scale(-459.542);                // Set the current send of the scale
   scale.tare();                             // reset the scale to 0
 }
