@@ -14,44 +14,60 @@ volatile int hold[2];                       // Array to hold the previous distan
 char nextline[] = " \r\n";
 
 volatile float difference;                  // A variable  to get the difference 
-int current_distance;
+int current_distacne;
 int dst_flt;
 
 char dst_char[5];
 char dst_flt_char[5];
 volatile float distance;
-volatile unsigned int i=0;
+volatile unsigned int a = 0;
 
+// Define a function to output characters onto the seria montior
 void ser_output(char *str){
+
+    // Keep printing the string until we reach the end
     while(*str != 0) {
+        // Keep incrementing each character of the string
         while (!(IFG2&UCA0TXIFG));
-        UCA0TXBUF = *str++;
+            UCA0TXBUF = *str++;
         }
 }
 
+// Define a timer that will hold the current value
 #pragma vector = TIMER1_A1_VECTOR
 __interrupt void Timer_A(void){
-        hold[i] = TA1CCR1;
-        i += 1;
-        TA1CCTL1 &= ~CCIFG ;
-        if (i==2) {
-            difference=hold[i-1]-hold[i-2];
-            i=0;
+
+        hold[i] = TA1CCR1;    // Create a varaible to hold the current register value
+        a += 1;               // increment 1
+        TA1CCTL1 &= ~CCIFG;   // Clear the flag from the video
+
+        // if we reach the second statement, then we take the difference from the preivous value
+        if (a==2) {
+            difference=hold[a-1]-hold[a-2];     // Substract the difference to get the distance
+            a=0;            // Second the index back to zero
         }
 
 }
 
 // Enable Serial communication via UART for testing purposes
-void inititalize_UART() {
-    UCA0CTL1 |= UCSWRST+UCSSEL_2;
-    UCA0BR0 = 52;
-    UCA0BR1 = 0;
-    UCA0MCTL = UCBRS_0;
-    UCA0CTL1 &= ~UCSWRST;
-    TA0CTL = TASSEL_2|MC_1 ;
+void initialize_UART() {
+    UCA0CTL1 |= UCSWRST + UCSSEL_2; // Set Software Reset ENable and select SMCLK as clock source of UART
+
+    UCA0BR0 = 52;                   // Set the baud rate control register UCA0BR0 for lower byte to 52.
+
+    UCA0BR1 = 0;                    // Set the baud rate control register for upper byte to 0.
+
+    UCA0MCTL = UCBRS_0;            // Set the modulation control register.  Configures no additiaonl modulation
+
+    UCA0CTL1 &= ~UCSWRST;           // Clear Software Reset Disable, enabling UART module to start
+
+    // Line 6: Configure Timer_A control register. Set TASSEL_2 to select SMCLK as the clock source,
+    // and MC_1 to start the timer in up mode.
+    TA0CTL = TASSEL_2 | MC_1;
 }
 
 
+// Inititailize the 
 void init_ultrasound() {
     P1DIR |= BIT6 | BIT0;
     P2SEL = BIT1;
@@ -61,14 +77,13 @@ void init_ultrasound() {
 
 // Inititlzie the duty cycle of the timer
 void init_timer() {
-    TA0CCR0 = 0xFFFF;
-    TA0CCR1 = 0x000A;
-    TA0CCTL1 = OUTMOD_7;
+    TA0CCR0 = 0xFFFF;           // Set the start of the duty cycle  
+    TA0CCR1 = 0x000A;           // Set the end of the duty cycle
+    TA0CCTL1 = OUTMOD_7;        // Declare it in output mode 7
 
     TA1CTL = TASSEL_2|MC_2 ;
     TA1CCTL1 = CAP | CCIE | CCIS_0 | CM_3 | SCS ;
 }
-
 void main(void)
 {
     WDTCTL = WDTPW | WDTHOLD;   // stop watchdog timer
