@@ -6,7 +6,7 @@ We have three different MSP430 microcontrollers. We have one for PWM for the mot
 ![alt text](https://github.com/nnh12/Food-Motor-Controller/blob/main/Car%20.png)
 
 ### Motor Controller:
-In order to drive the motors, we integrated a separate large current 50A H-Bridge motor driver. In essence, our MSP430 motor.c will input two PWM channels into the driver to control the speed and direction of the wheel.
+In order to drive the motors, we integrated a separate large current 50A H-Bridge motor driver. The motor driver has 2 input pins, one which makes the motors turn clockwise and one which turns them counterclockwise. In essence, our MSP430 motor.c will input two PWM channels into the driver to control the speed and direction of the wheel.
 The two different PWM channels (Channel 1 + Channel 2) correspond to the forward or reverse direction. If the car needs to go forward, then the MSP will turn on Channel 1 and will turn off Channel 2. If the car needs to go in reverse, then the MSP will turn on Channel 2 and will turn off Channel 1. When we “turn it off,” we adjust the duty cycle of the PWM to zero and when we “turn it ON”  we set the PWM to approximately 71%.
 
 
