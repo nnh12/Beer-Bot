@@ -1,3 +1,4 @@
+#include <Energia.h>
 #include "HX711.h"
 
 // HX711 circuit wiring
