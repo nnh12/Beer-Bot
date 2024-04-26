@@ -3,6 +3,8 @@
 The general aim of our project is to create an autonomous beverage delivery car that begins moving once a drink is placed onto a platform detecting the weight of a drink on it, allowing any patron to grab the drink off the car as it drives along. Once in motion, the car keeps driving until ultrasonic sensors on the front and back of the car detect the drop off from a table or bar top to the floor. Once the edge is detected, the vehicle stops and then reverses direction to drive back towards the bartender or barista at the other side it came from.
 We have three different MSP430 microcontrollers. We have one for PWM for the motors, the second for ultrasonic sensors, and the third for the weight sensor. 
 
+![alt text](https://github.com/nnh12/Food-Motor-Controller/blob/main/Car%20.png)
+
 ### Motor Controller:
 In order to drive the motors, we integrated a separate large current 50A H-Bridge motor driver. In essence, our MSP430 motor.c will input two PWM channels into the driver to control the speed and direction of the wheel.
 The two different PWM channels (Channel 1 + Channel 2) correspond to the forward or reverse direction. If the car needs to go forward, then the MSP will turn on Channel 1 and will turn off Channel 2. If the car needs to go in reverse, then the MSP will turn on Channel 2 and will turn off Channel 1. When we “turn it off,” we adjust the duty cycle of the PWM to zero and when we “turn it ON”  we set the PWM to approximately 71%.
