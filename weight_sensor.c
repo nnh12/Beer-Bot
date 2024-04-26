@@ -1,9 +1,9 @@
 #include <Energia.h>
 #include "HX711.h"
 
-// HX711 circuit wiring
-const int LOADCELL_DOUT_PIN = 2;
-const int LOADCELL_SCK_PIN = 3;
+
+const int DATA_PIN = 2;                 // Define the data pint
+const int CLOCK_PIN = 3;                // Define the clock pin
 
 HX711 scale;
 
@@ -12,74 +12,72 @@ int sum = 0;
 int average = 0;
 int num = 0;
 
+/*
+*  A function to intitialize everything 
+*  with the correct pinouts - data pins and clock pins.
+*
+*/
 void setup() {
-  Serial.begin(57600);
-  Serial.println("HX711 Demo");
+    
+  Serial.begin(57600);                    // Set the Baud rate and the Serial Communication
   Serial.println("Initializing the scale");
   pinMode(13, OUTPUT);
 
-  scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
+  scale.begin(DATA_PIN, CLOCK_PIN);        // Inititalize the correct data and clock pin
 
-  Serial.println("Before setting up the scale:");
+  Serial.println("Calibrate the scael");
   Serial.print("read: \t\t");
-  Serial.println(scale.read());      // print a raw reading from the ADC
+  Serial.println(scale.read());             // Print the current scale of the weight
 
-  Serial.print("read average: \t\t");
-  Serial.println(scale.read_average(20));   // print the average of 20 readings from the ADC
+  Serial.print("Obtain the average: \t\t");
+  Serial.println(scale.read_average(10));   // print the average of 20 readings from the ADC
 
-  Serial.print("get value: \t\t");
-  Serial.println(scale.get_value(5));   // print the average of 5 readings from the ADC minus the tare weight (not set yet)
+  Serial.print("Average value: \t\t");
+  Serial.println(scale.get_value(5));       // Get the average of 5 values
 
-  Serial.print("get units: \t\t");
-  Serial.println(scale.get_units(5), 1);  // print the average of 5 readings from the ADC minus tare weight (not set) divided
-            // by the SCALE parameter (not set yet)
+  Serial.print("Average: \t\t");
+  Serial.println(scale.get_units(5), 1);    // print the average of 5 readings from the ADC minus tare weight (not set) divided
+                                            // by the SCALE parameter (not set yet)
             
-  scale.set_scale(-459.542);
-  //scale.set_scale(-471.497);                      // this value is obtained by calibrating the scale with known weights; see the README for details
-  scale.tare();               // reset the scale to 0
-
-  Serial.println("After setting up the scale:");
-
-  Serial.print("read: \t\t");
-  Serial.println(scale.read());                 // print a raw reading from the ADC
-
-  Serial.print("read average: \t\t");
-  Serial.println(scale.read_average(20));       // print the average of 20 readings from the ADC
-
-  Serial.print("get value: \t\t");
-  Serial.println(scale.get_value(5));   // print the average of 5 readings from the ADC minus the tare weight, set with tare()
-
-  Serial.print("get units: \t\t");
-  Serial.println(scale.get_units(5), 1);        // print the average of 5 readings from the ADC minus tare weight, divided
-            // by the SCALE parameter set with set_scale
-
-  Serial.println("Readings:");
+  scale.set_scale(-459.542);                // Set the current send of the scale
+  scale.tare();                             // reset the scale to 0
 }
 
+
+/*
+*  A loop to go through and sample the current weight every 1000 ms
+*  If the weight passes over the threshold, then it will set a GPIO pin to be
+*  HIGH. We have another MSP430 that will take an input and drive the motors if it 
+*  if HIGH. Else, it will not move when it is LOW.
+*/
 void loop() {
  
   Serial.print("one reading:\t");
 
   Serial.print(scale.get_units(), 1);
 
+  // Sets it to high if a weight is detected
   if (scale.get_units() < -30) {
       digitalWrite(6, HIGH);
   }
 
+  // Sets it to LOW if a weight it not detected
   else {
       digitalWrite(6, LOW); 
   }
 
+  // Add the units to the scale.
   num = scale.get_units();
   sum += scale.get_units();
 
+  // Increment the count
   average = (sum/count);
   count++; 
 
+  // Print the average
   Serial.print("\t| average:\t");
   Serial.println(average, 5);
 
-
-
+  // Delay the 
   delay(1000);
 }
