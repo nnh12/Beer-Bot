@@ -4,6 +4,7 @@ The general aim of our project is to create an autonomous beverage delivery car 
 We have three different MSP430 microcontrollers. We have one for PWM for the motors, the second for ultrasonic sensors, and the third for the weight sensor. 
 
 ![alt text](https://github.com/nnh12/Food-Motor-Controller/blob/main/Car%20.png)
+![alt text](https://github.com/nnh12/Beer-Bot/blob/main/Block%20Digram.jpg)
 
 ### Motor Controller:
 In order to drive the motors, we integrated a separate large current 50A H-Bridge motor driver. The motor driver has 2 input pins, one which makes the motors turn clockwise and one which turns them counterclockwise. In essence, our MSP430 motor.c will input two PWM channels into the driver to control the speed and direction of the wheel.
