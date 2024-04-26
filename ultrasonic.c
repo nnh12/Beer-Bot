@@ -14,7 +14,7 @@ volatile int hold[2];                       // Array to hold the previous distan
 char nextline[] = " \r\n";
 
 volatile float difference;                  // A variable  to get the difference 
-int current_distacne;
+int current_distance;
 int dst_flt;
 
 char dst_char[5];
@@ -79,34 +79,34 @@ void main(void)
     init_ultrasound();          // Initialize the ultrasound
     init_timer();               // Initialize the timer
 
-    _enable_interrupts();
+    _enable_interrupts();       //Enable Interrupts
     
     while(1){
-        current_distacne = floor(difference/58);
+        current_distance = floor(difference/58);  //distance the sensor is detecting
 
-        ltoa(current_distacne, dst_char, 10);
+        ltoa(current_distance, dst_char, 10); //converts current_distance, which is a long, into a string
 
         // If the current distance is greater than 10, then we set one of the GPIO pins to HIGH
-        if (current_distacne > 10) {
-            P1OUT |= BIT0;
+        if (current_distance > 10) {
+            P1OUT |= BIT0; //sets pin 1.0 to high
         }
 
         else {
-            P1OUT &= ~BIT0;
+            P1OUT &= ~BIT0; //sets pin 1.0 to low
         }
 
-        ltoa(dst_flt,dst_flt_char, 10);
+        ltoa(dst_flt,dst_flt_char, 10);  //converts dst_flt into char
 
         // Output the distance via UART for testing
-        ser_output(DISTANCE); 
-        ser_output(dst_char); 
-        ser_output(d); 
-        ser_output(z); 
-        ser_output(z); 
-        ser_output(dst_flt_char); ser_output(cm);
-
+        ser_output(DISTANCE); //will print "Current Distance:"
+        ser_output(dst_char);  //prints the current distance being detected
+        ser_output(d);        //prints a .
+        ser_output(z);        //prints a 0
+        ser_output(z);        //prints a 0
+        ser_output(dst_flt_char); ser_output(cm);  //output message will look like
+                                                   // Current Distance: X.00 cm
  
-        ser_output(nextline);
+        ser_output(nextline);     //moves to the next line in the terminal
         __delay_cycles(500000);   // Enable the low power mode
     }
 }
