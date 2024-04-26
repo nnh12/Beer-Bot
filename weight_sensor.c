@@ -1,4 +1,5 @@
 #include <Energia.h>
+#include <msp430.h>
 #include "HX711.h"
 
 const int DATA_PIN = 2;                 // Define the data pint
