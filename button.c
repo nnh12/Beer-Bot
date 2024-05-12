@@ -4,6 +4,10 @@ volatile unsigned int i = 0;            // Volatile to prevent optimization. Thi
 char text[] = "Green\r\n";
 
 void initializeUART(){
+
+    P1SEL = BIT1|BIT2;
+    P1SEL2 = BIT1|BIT2;
+    
     UCA0CTL1 |= UCSWRST+UCSSEL_2;
     UCA0BR0 = 52;  //settings for 19200 baud
     UCA0BR1 = 0;
@@ -15,9 +19,6 @@ void main(void) {
     WDTCTL = WDTPW + WDTHOLD;
 
     P1DIR |= BIT0;      // P1DIR is a register that configures the direction (DIR) of a port pin as an output or an input.
-
-    P1SEL = BIT1|BIT2;
-    P1SEL2 = BIT1|BIT2;
 
     P1DIR &= (~BIT3);     // Set P1.3 SEL as Input
     P1IE |= BIT3;         // Interrupt Enable
