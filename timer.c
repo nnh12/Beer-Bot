@@ -1,9 +1,15 @@
 #include <msp430.h>
+#include <stdint.h>
 
 #define TIMER_PERIOD 1000  // Timer period in milliseconds
 
 volatile unsigned int timer_ticks = 0;
 char text[] = "Green\r\n";
+
+#define UART_BUFFER_SIZE 64
+
+char uart_buffer[UART_BUFFER_SIZE];
+volatile uint8_t uart_buffer_index = 0;
 
 void initializeUART(){
 
@@ -15,6 +21,7 @@ void initializeUART(){
     UCA0BR1 = 0;
     UCA0MCTL = UCBRS_0;
     UCA0CTL1 &= ~UCSWRST;
+    UC0IE |= UCA0RXIE;  // Enable UART RX interrupt
 }
 
 void serial_output(char *str) {
@@ -51,5 +58,22 @@ __interrupt void Timer_A(void)
         serial_output(text);
         P1OUT ^= BIT0;              // Toggle LED
         timer_ticks = 0;            // Reset ticks
+    }
+}
+
+
+#pragma vector=USCIAB0RX_VECTOR
+__interrupt void USCI0RX_ISR(void)
+{
+    char received_char = UCA0RXBUF;  // Read received character
+    if (received_char != '\r') {  // Check if received character is not carriage return
+        uart_buffer[uart_buffer_index++] = received_char;  // Store character in buffer
+        if (uart_buffer_index >= UART_BUFFER_SIZE) {  // Check if buffer overflow
+            uart_buffer_index = 0;  // Reset buffer index
+        }
+    } else {
+        uart_buffer[uart_buffer_index] = '\0';  // Null-terminate the received string
+        // Handle received string here, for example, print it or process it further
+        uart_buffer_index = 0;  // Reset buffer index for the next reception
     }
 }
